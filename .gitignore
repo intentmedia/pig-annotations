@@ -1,2 +1,3 @@
 # Maven output
 target/*
+.idea/*
