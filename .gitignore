@@ -1,3 +1,5 @@
 # Maven output
 target/*
 .idea/*
+pig-annotations.ipr
+pig-annotations.iws
