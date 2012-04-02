@@ -1,0 +1,192 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Pig-annotations by intentmedia</title>
+    
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Pig-annotations</h1>
+        <p></p>
+        <p class="view"><a href="https://github.com/intentmedia/pig-annotations">View the Project on GitHub <small>intentmedia/pig-annotations</small></a></p>
+        <ul>
+          <li><a href="https://github.com/intentmedia/pig-annotations/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/intentmedia/pig-annotations/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/intentmedia/pig-annotations">Fork On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h2>pig-annotations</h2>
+
+<p><em>pig-annotations</em> is a class library that makes it easy to load your
+custom serialized java objects into <a href="http://pig.apache.org" title="Apache Pig">pig</a> as proper pig Tuples with a
+well-defined schema.</p>
+
+<h3>Should I use <em>pig-annotations</em>?</h3>
+
+<p><em>pig-annotations</em> has a rather narrow scope.  You should probably only
+use <em>pig-annotations</em> if the following is true:</p>
+
+<ul>
+<li>You use java.  <em>pig-annotations</em> is a java library.</li>
+<li>You use <a href="http://pig.apache.org" title="Apache Pig">pig</a>.</li>
+<li>You already have a custom means of serializing your java objects in a <strong>line-based</strong> text format (like json).</li>
+</ul><h3>How do I use <em>pig-annotations</em>?</h3>
+
+<p>Using <em>pig-annotations</em> is straightforward.  </p>
+
+<ul>
+<li>You will need to provide an implementation of <a href="https://github.com/intentmedia/pig-annotations/blob/master/src/main/java/com/intentmedia/convert/RecordInflater.java">RecordInflater</a> to convert 
+from a line of text into your java object.  This implementation must have a 
+no-arg public constructor.</li>
+<li>You will need to annotate your object to specify how to convert the
+fields into values within a tuple.</li>
+</ul><h2>Example</h2>
+
+<p>It is probably easiest to demonstrate via an example.  </p>
+
+<p>Let's say you have a <em>Person</em> class that has two fields, age and gender.</p>
+
+<div class="highlight">
+<pre><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">intentmedia</span><span class="o">.</span><span class="na">examples</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Person</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">gender</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">Integer</span> <span class="n">age</span><span class="o">;</span>
+
+    <span class="c1">// getters, setters, etc.</span>
+<span class="o">}</span>
+</pre>
+</div>
+
+
+<p>You need to tell <em>pig-annotations</em> how to transform each field.</p>
+
+<div class="highlight">
+<pre><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">intentmedia</span><span class="o">.</span><span class="na">examples</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">com.intentmedia.pig.PigField</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">static</span> <span class="n">org</span><span class="o">.</span><span class="na">apache</span><span class="o">.</span><span class="na">pig</span><span class="o">.</span><span class="na">data</span><span class="o">.</span><span class="na">DataType</span><span class="o">.</span><span class="na">CHARARRAY</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">static</span> <span class="n">org</span><span class="o">.</span><span class="na">apache</span><span class="o">.</span><span class="na">pig</span><span class="o">.</span><span class="na">data</span><span class="o">.</span><span class="na">DataType</span><span class="o">.</span><span class="na">INTEGER</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Person</span> <span class="o">{</span>
+
+    <span class="nd">@PigField</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"gender"</span><span class="o">,</span> <span class="n">type</span> <span class="o">=</span> <span class="n">CHARARRAY</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">gender</span><span class="o">;</span>
+
+
+    <span class="nd">@PigField</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"gender"</span><span class="o">,</span> <span class="n">type</span> <span class="o">=</span> <span class="n">INTEGER</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="n">Integer</span> <span class="n">age</span><span class="o">;</span>
+
+    <span class="c1">// getters, setters, etc.</span>
+<span class="o">}</span>
+</pre>
+</div>
+
+
+<p>For each field, you supply a name, and what Pig data type to map it to.</p>
+
+<p>Finally, you need to tell <em>pig-annotations</em> how to load your object
+before it can turn it into a pig tuple.  If your objects were stored as
+a csv like this:</p>
+
+<pre><code>male,25
+female,26
+</code></pre>
+
+<p>Then you need to implement <code>RecordInflater&lt;Person&gt;</code>.</p>
+
+<div class="highlight">
+<pre><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">intentmedia</span><span class="o">.</span><span class="na">examples</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">com.intentmedia.examples.Person</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.intentmedia.convert.RecordInflater</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Text</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.jetbrains.annotations.NotNull</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">PersonFromCsvInflater</span> <span class="kd">implements</span> <span class="n">RecordInflater</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="nd">@NotNull</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Person</span> <span class="nf">convert</span><span class="o">(</span><span class="nd">@NotNull</span> <span class="n">Text</span> <span class="n">value</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IllegalArgumentException</span> <span class="o">{</span>
+
+        <span class="n">String</span><span class="o">[]</span> <span class="n">genderAndAge</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="na">toString</span><span class="o">().</span><span class="na">split</span><span class="o">(</span><span class="s">","</span><span class="o">);</span>
+
+        <span class="n">Person</span> <span class="n">person</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Person</span><span class="o">();</span>
+        <span class="n">person</span><span class="o">.</span><span class="na">setGender</span><span class="o">(</span><span class="n">genderAndAge</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
+        <span class="n">person</span><span class="o">.</span><span class="na">setAge</span><span class="o">(</span><span class="n">Integer</span><span class="o">.</span><span class="na">parseInt</span><span class="o">(</span><span class="n">genderAndAge</span><span class="o">[</span><span class="mi">1</span><span class="o">]));</span>
+
+        <span class="k">return</span> <span class="n">person</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre>
+</div>
+
+
+<p>Finally, just add one more annotation to your <em>Person</em> class.</p>
+
+<div class="highlight">
+<pre><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">intentmedia</span><span class="o">.</span><span class="na">examples</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">com.intentmedia.pig.PigField</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">static</span> <span class="n">org</span><span class="o">.</span><span class="na">apache</span><span class="o">.</span><span class="na">pig</span><span class="o">.</span><span class="na">data</span><span class="o">.</span><span class="na">DataType</span><span class="o">.</span><span class="na">CHARARRAY</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">static</span> <span class="n">org</span><span class="o">.</span><span class="na">apache</span><span class="o">.</span><span class="na">pig</span><span class="o">.</span><span class="na">data</span><span class="o">.</span><span class="na">DataType</span><span class="o">.</span><span class="na">INTEGER</span><span class="o">;</span>
+
+<span class="nd">@PigLoadable</span><span class="o">(</span><span class="n">recordInflater</span> <span class="o">=</span> <span class="n">PersonFromCsvInflater</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Person</span> <span class="o">{</span>
+
+    <span class="nd">@PigField</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"gender"</span><span class="o">,</span> <span class="n">type</span> <span class="o">=</span> <span class="n">CHARARRAY</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">gender</span><span class="o">;</span>
+
+
+    <span class="nd">@PigField</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"gender"</span><span class="o">,</span> <span class="n">type</span> <span class="o">=</span> <span class="n">INTEGER</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="n">Integer</span> <span class="n">age</span><span class="o">;</span>
+
+    <span class="c1">// getters, setters, etc.</span>
+<span class="o">}</span>
+</pre>
+</div>
+
+
+<p>Now, to load your objects via pig, you would use a load function like:</p>
+
+<pre><code>REQUIRE 'location/to/pig-annotations.jar'
+REQUIRE 'your/jar/with/other/classes.jar'
+
+people = LOAD 'your/input/files/*.csv' 
+  USING com.intentmedia.pig.AnnotatedObjectLoader('com.intentmedia.examples.Person');
+
+</code></pre>
+
+<p>And the <code>people</code> alias will have the pig schema <code>tuple(gender:chararray,age:int)</code>.</p>
+
+<h2>But wait, there's more</h2>
+
+<p><em>pig-annotations</em> also supports the following features:</p>
+
+<ul>
+<li>Custom converters for fields that can't be autoboxed into pig types.</li>
+<li>Mapping Booleans to Integers (because Pig doesn't have booleans yet)</li>
+<li>Unwrapping fields annotated with <a href="/Embedded" class="user-mention">@Embedded</a>
+</li>
+</ul>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/intentmedia">intentmedia</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+  </body>
+</html>
