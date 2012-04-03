@@ -1,12 +1,29 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.intentmedia.pig</groupId>
+  <groupId>com.intentmedia</groupId>
   <artifactId>pig-annotations</artifactId>
   <packaging>jar</packaging>
   <version>0.0.2-SNAPSHOT</version>
   <name>pig-annotations</name>
+  <description>pig-annotations is a class library that makes it easy to load your custom serialized java objects into pig as proper pig Tuples with a well-defined schema.</description>
   <url>https://github.com/intentmedia/pig-annotations</url>
+  <licenses>
+    <license>
+      <name>The MIT License</name>
+      <url>http://www.opensource.org/licenses/mit-license.php</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <url>git@github.com/intentmedia/pig-annotations.git</url>
+    <connection>scm:git:git://github.com/intentmedia/pig-annotations.git</connection>
+  </scm>
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+  </parent>
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
