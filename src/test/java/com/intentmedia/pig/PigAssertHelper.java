@@ -13,6 +13,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 
 public final class PigAssertHelper {
@@ -49,11 +50,9 @@ public final class PigAssertHelper {
 
     public static void assertNonPigFields(Class<?> clazz,
                                           String[] expectedNonPigFieldNames,
-                                          ResourceSchema.ResourceFieldSchema[] pigFields,
-                                          int numberOfEmbeddedPigFields,
-                                          int numberOfSuperClassPigFields) {
+                                          ResourceSchema.ResourceFieldSchema[] pigFields) {
 
-        Field[] declaredFields = clazz.getDeclaredFields();
+        List<Field> declaredFields = getAllAnnotations(clazz);
         List<Field> actualNonPigFields = new ArrayList<Field>();
 
         for (Field field : declaredFields) {
@@ -80,17 +79,13 @@ public final class PigAssertHelper {
         assertEquals(
                 String.format(
                         "Expected number of pig fields to be the sum of:\n" +
-                                "\tNumber of pig fields expanded from embedded objects: [%d\n" +
-                                "\tNumber of pig fields from super class: [%d]\n" +
-                                "\tNumber of pig fields on direct object: [%d]\n" +
+                                "\tNumber of pig fields on object including superclasses: [%d]\n" +
                                 "Expected [%d] but got [%d]",
-                        numberOfEmbeddedPigFields,
-                        numberOfSuperClassPigFields,
-                        declaredFields.length - expectedNonPigFieldNames.length,
-                        declaredFields.length - expectedNonPigFieldNames.length + numberOfEmbeddedPigFields + numberOfSuperClassPigFields,
+                        declaredFields.size(),
+                        declaredFields.size() - expectedNonPigFieldNames.length,
                         pigFields.length
                 ),
-                declaredFields.length - expectedNonPigFieldNames.length + numberOfEmbeddedPigFields + numberOfSuperClassPigFields,
+                declaredFields.size() - expectedNonPigFieldNames.length,
                 pigFields.length);
     }
 
@@ -188,5 +183,15 @@ public final class PigAssertHelper {
                         actualName),
                 expectedFieldName,
                 actualName);
+    }
+
+    private static List<Field> getAllAnnotations(Class<?> clazz) {
+        List<Field> annotatedFields = new ArrayList<Field>();
+        Class<?> current = clazz;
+        while (current != Object.class) {
+            annotatedFields.addAll(asList(current.getDeclaredFields()));
+            current = current.getSuperclass();
+        }
+        return annotatedFields;
     }
 }
