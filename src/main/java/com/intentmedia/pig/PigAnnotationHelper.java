@@ -28,8 +28,8 @@ public class PigAnnotationHelper {
 
     public PigAnnotationHelper(Class<?> clazz) {
         pigFields = getAnnotatedFields(clazz, PigField.class);
-        embeddedFields = getAnnotatedFields(clazz, Embedded.class);
-        superClassPigFields = getAnnotatedFields(clazz.getSuperclass(), PigField.class);
+        embeddedFields = getAnnotatedFieldsIncludingInherited(clazz, Embedded.class);
+        superClassPigFields = getAnnotatedFieldsIncludingInherited(clazz.getSuperclass(), PigField.class);
 
         appendMetaData(pigFields);
 
@@ -38,8 +38,6 @@ public class PigAnnotationHelper {
             annotationHelpers.put(embeddedField, embeddedFieldAnnotationHelper);
             resourceFieldSchemas.addAll(embeddedFieldAnnotationHelper.resourceFieldSchemas);
         }
-
-        // Adding super class pig fields
         appendMetaData(superClassPigFields);
     }
 
@@ -144,5 +142,15 @@ public class PigAnnotationHelper {
             }
         }
         return fieldsWithAnnotations;
+    }
+
+    public static List<Field> getAnnotatedFieldsIncludingInherited(final Class<?> clazz, final Class<? extends Annotation> pigFieldClass) {
+        List<Field> annotatedFields = new ArrayList<Field>();
+        Class<?> current = clazz;
+        while (current != Object.class) {
+            annotatedFields.addAll(getAnnotatedFields(current, pigFieldClass));
+            current = current.getSuperclass();
+        }
+        return annotatedFields;
     }
 }

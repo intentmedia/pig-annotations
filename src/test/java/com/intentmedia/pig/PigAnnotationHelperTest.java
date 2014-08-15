@@ -10,6 +10,10 @@ import org.junit.Test;
 
 import javax.persistence.Embedded;
 
+import static com.intentmedia.pig.PigAssertHelper.assertBooleanResourceFieldSchemaNameAndTypeIsRepresentedAsInteger;
+import static com.intentmedia.pig.PigAssertHelper.assertResourceFieldSchemaNameAndType;
+import static com.intentmedia.pig.PigAssertHelper.assertTupleValueAndType;
+
 public class PigAnnotationHelperTest {
 
     @Test
@@ -24,16 +28,16 @@ public class PigAnnotationHelperTest {
 
         // assert
         ResourceSchema.ResourceFieldSchema[] fields = returnValue.getFields();
-        PigAssertHelper.assertResourceFieldSchemaNameAndType("string_field", DataType.CHARARRAY, fields[0]);
-        PigAssertHelper.assertResourceFieldSchemaNameAndType("integer_field", DataType.INTEGER, fields[1]);
-        PigAssertHelper.assertBooleanResourceFieldSchemaNameAndTypeIsRepresentedAsInteger("boolean_field", fields[2]);
-        PigAssertHelper.assertResourceFieldSchemaNameAndType("enum_field", DataType.CHARARRAY, fields[3]);
+        assertResourceFieldSchemaNameAndType("string_field", DataType.CHARARRAY, fields[0]);
+        assertResourceFieldSchemaNameAndType("integer_field", DataType.INTEGER, fields[1]);
+        assertBooleanResourceFieldSchemaNameAndTypeIsRepresentedAsInteger("boolean_field", fields[2]);
+        assertResourceFieldSchemaNameAndType("enum_field", DataType.CHARARRAY, fields[3]);
 
         // verify
     }
 
     @Test
-    public void testGetResourceSchemaIncludesFieldsFromSuperClass() throws Exception {
+    public void testGetResourceSchemaIncludesFieldsFromSuperClasses() throws Exception {
         // initialize inputs
         // initialize mocks
         // initialize subject
@@ -44,7 +48,8 @@ public class PigAnnotationHelperTest {
 
         // assert
         ResourceSchema.ResourceFieldSchema[] fields = returnValue.getFields();
-        PigAssertHelper.assertResourceFieldSchemaNameAndType("super_string_field", DataType.CHARARRAY, fields[6]);
+        assertResourceFieldSchemaNameAndType("parent_string_field", DataType.CHARARRAY, fields[6]);
+        assertResourceFieldSchemaNameAndType("grand_parent_string_field", DataType.CHARARRAY, fields[7]);
 
         // verify
     }
@@ -61,7 +66,7 @@ public class PigAnnotationHelperTest {
 
         // assert
         ResourceSchema.ResourceFieldSchema[] fields = returnValue.getFields();
-        PigAssertHelper.assertResourceFieldSchemaNameAndType("embedded_string_field", DataType.CHARARRAY, fields[5]);
+        assertResourceFieldSchemaNameAndType("embedded_string_field", DataType.CHARARRAY, fields[5]);
 
         // verify
     }
@@ -83,19 +88,21 @@ public class PigAnnotationHelperTest {
         Tuple returnValue = subject.toTuple(stub, TupleFactory.getInstance());
 
         // assert
-        PigAssertHelper.assertTupleValueAndType(stringField, returnValue, DataType.CHARARRAY, 0);
-        PigAssertHelper.assertTupleValueAndType(integerField, returnValue, DataType.INTEGER, 1);
-        PigAssertHelper.assertBooleanTupleValueAndTypeIsInteger(booleanField, returnValue, 2);
+        assertTupleValueAndType(stringField, returnValue, DataType.CHARARRAY, 0);
+        assertTupleValueAndType(integerField, returnValue, DataType.INTEGER, 1);
+        com.intentmedia.pig.PigAssertHelper.assertBooleanTupleValueAndTypeIsInteger(booleanField, returnValue, 2);
 
         // verify
     }
 
     @Test
-    public void testToTupleIncludesFieldsFromSuperClass() throws Exception {
+    public void testToTupleIncludesFieldsFromSuperClasses() throws Exception {
         // initialize inputs
-        String superStringField = "superString";
+        String parentStringField = "parentString";
+        String grandParentStringField = "grandParentString";
         PigFieldAnnotatedStub stub = new PigFieldAnnotatedStub(null, null, null, null, null);
-        stub.setSuperStringField(superStringField);
+        stub.setParentStringField(parentStringField);
+        stub.setGrandParentStringField(grandParentStringField);
 
         // initialize mocks
         // initialize subject
@@ -105,7 +112,8 @@ public class PigAnnotationHelperTest {
         Tuple returnValue = subject.toTuple(stub, TupleFactory.getInstance());
 
         // assert
-        PigAssertHelper.assertTupleValueAndType(superStringField, returnValue, DataType.CHARARRAY, 6);
+        assertTupleValueAndType(parentStringField, returnValue, DataType.CHARARRAY, 6);
+        assertTupleValueAndType(grandParentStringField, returnValue, DataType.CHARARRAY, 7);
 
         // verify
     }
@@ -125,7 +133,7 @@ public class PigAnnotationHelperTest {
         Tuple returnValue = subject.toTuple(stub, TupleFactory.getInstance());
 
         // assert
-        PigAssertHelper.assertTupleValueAndType(enumField.name(), returnValue, DataType.CHARARRAY, 3);
+        assertTupleValueAndType(enumField.name(), returnValue, DataType.CHARARRAY, 3);
 
         // verify
     }
@@ -146,7 +154,7 @@ public class PigAnnotationHelperTest {
         Tuple returnValue = subject.toTuple(stub, TupleFactory.getInstance());
 
         // assert
-        PigAssertHelper.assertTupleValueAndType(embeddedStringField, returnValue, DataType.CHARARRAY, 5);
+        assertTupleValueAndType(embeddedStringField, returnValue, DataType.CHARARRAY, 5);
 
         // verify
     }
@@ -164,21 +172,31 @@ public class PigAnnotationHelperTest {
         Tuple returnValue = subject.toTuple(stub, TupleFactory.getInstance());
 
         // assert
-        PigAssertHelper.assertTupleValueAndType("property string", returnValue, DataType.CHARARRAY, 4);
+        assertTupleValueAndType("property string", returnValue, DataType.CHARARRAY, 4);
         // verify
     }
 
-    private static class PigFieldAnnotatedStubSuper {
+    private static class PigFieldAnnotatedStubParent extends PigFieldAnnotatedStubGrandParent {
 
-        @PigField(name = "super_string_field", type = DataType.CHARARRAY)
-        private String superStringField;
+        @PigField(name = "parent_string_field", type = DataType.CHARARRAY)
+        private String parentStringField;
 
-        public void setSuperStringField(String superStringField) {
-            this.superStringField = superStringField;
+        public void setParentStringField(String parentStringField) {
+            this.parentStringField = parentStringField;
         }
     }
 
-    private static class PigFieldAnnotatedStub extends PigFieldAnnotatedStubSuper {
+    private static class PigFieldAnnotatedStubGrandParent {
+
+        @PigField(name = "grand_parent_string_field", type = DataType.CHARARRAY)
+        private String grandParentStringField;
+
+        public void setGrandParentStringField(String grandParentStringField) {
+            this.grandParentStringField = grandParentStringField;
+        }
+    }
+
+    private static class PigFieldAnnotatedStub extends PigFieldAnnotatedStubParent {
 
         @PigField(name = "string_field", type = DataType.CHARARRAY)
         private String stringField;
